@@ -9,53 +9,30 @@ const refs = {
 }
 
 let indexCurrentImage;
-
-refs.closeModalBtn.addEventListener('click', onCloseModal);
 refs.listGallery.addEventListener('click', onOpenModal);
 
-function createLi({original, preview, description}, index)  {
-    const li = document.createElement('li');
-    const a = document.createElement('a');
-    const img = document.createElement('img');
-
-    li.classList.add('gallery__item');
-    a.classList.add('gallery__link');
-    img.classList.add('gallery__image');
-
-    a.href = original;
-    img.src = preview;
-    img.alt = description;
-    
-    img.setAttribute('data-source', original);
-    img.setAttribute('data-index', index);
-
-    a.append(img);
-    li.append(a);
-
-    return li;
+const createMarkup = galleryItems => {
+    return galleryItems.reduce((acc, { original, preview, description }, i) => {
+        acc += `<li class="gallery__item">
+                    <a class="gallery__link"
+                        href="${original}">
+                    <img class="gallery__image"
+                        src="${preview}"
+                        data-source="${original}"
+                        alt="${description}"
+                        data-index="${i}"/>
+                    </a>
+                </li>`;
+        return acc;
+    }, '');
 };
-
-function createGallery(galleryItems) {
-    
-    return galleryItems.map((liItem, index) => {
-
-        return createLi({
-            original: liItem.original,
-            preview: liItem.preview,
-            description: liItem.description
-        }, index)
-    })
-}
-
-refs.listGallery.append(...createGallery(galleryItems));
+refs.listGallery.innerHTML = createMarkup(galleryItems);
 
 
 function onOpenModal(event) {
     event.preventDefault();
-    if (event.target.nodeName !== 'IMG') {
-        return
-    }
 
+    if (event.target.nodeName === 'IMG') {
     indexCurrentImage = Number(event.target.dataset.index)
     refs.modal.classList.add('is-open')
 
@@ -65,6 +42,7 @@ function onOpenModal(event) {
     refs.closeModalBtn.addEventListener('click', onCloseModal);
     refs.overlay.addEventListener('click', onCloseModal);
     window.addEventListener('keydown', onPressKey)
+    }
 };
 
 function onCloseModal() {
@@ -73,6 +51,7 @@ function onCloseModal() {
 
     refs.closeModalBtn.removeEventListener('click', onCloseModal);
     refs.overlay.removeEventListener('click', onCloseModal);
+    window.removeEventListener('keydown', onPressKey)
 };
 
 function onPressKey(event) { 
@@ -83,7 +62,7 @@ function onPressKey(event) {
         
         case 'ArrowRight':
             indexCurrentImage + 1 === galleryItems.length
-                ? indexCurrentImage = galleryItems.length - 1
+                ? indexCurrentImage = 0
                 : indexCurrentImage += 1;
             refs.imageModal.src = galleryItems[indexCurrentImage].original
             break;
