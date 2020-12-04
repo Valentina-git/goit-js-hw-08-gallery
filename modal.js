@@ -70,6 +70,9 @@ function onOpenModal(event) {
 function onCloseModal() {
     refs.modal.classList.remove('is-open')
     refs.imageModal.src = ''
+
+    refs.closeModalBtn.removeEventListener('click', onCloseModal);
+    refs.overlay.removeEventListener('click', onCloseModal);
 };
 
 function onPressKey(event) { 
